@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id
+  email       String   @unique
+  name        String
+  password    String
+  birthDate   DateTime
+  address     String
+  role        Role     @default(user)
+  gender      Gender
+  phoneNumber String
+
+  ward        String // Kelurahan
+  subDistrict String // Kecamatan
+  city        String // Kota
+  regency     String // Kabupaten
+  province    String // Provinsi
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employee Employee?
+  votes    Vote[]
+}
+
+model Employee {
+  id               Int                @id @default(autoincrement())
+  userId           String             @unique
+  divisionId       Int
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  employeeDivision EmployeeDivision   @relation(fields: [divisionId], references: [id])
+  user             User               @relation(fields: [userId], references: [id])
+  schedules        EmployeeSchedule[]
+}
+
+model EmployeeSchedule {
+  id               Int              @id @default(autoincrement())
+  employeeId       Int
+  divisionId       Int
+  date             DateTime
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  employeeDivision EmployeeDivision @relation(fields: [divisionId], references: [id])
+  employee         Employee         @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, date])
+}
+
+model EmployeeDivision {
+  id        Int                @id @default(autoincrement())
+  name      String             @unique
+  employee  Employee[]
+  schedules EmployeeSchedule[]
+}
+
+model Candidate {
+  id            Int            @id @default(autoincrement())
+  name          String
+  imageUrl      String
+  vision        String
+  mission       String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  votes         Vote[]
+  votingResults VotingResult[]
+}
+
+model Vote {
+  id          Int         @id @default(autoincrement())
+  userId      String
+  candidateId Int
+  placeId     Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  candidate   Candidate   @relation(fields: [candidateId], references: [id])
+  votingPlace VotingPlace @relation(fields: [placeId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@unique([userId, candidateId, placeId])
+}
+
+model VotingPlace {
+  id          Int      @id @default(autoincrement())
+  imageUrl    String
+  description String
+  address     String
+  latitude    Float
+  longitude   Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  votes       Vote[]
+}
+
+model VotingResult {
+  candidateId Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+
+  @@unique([createdAt, candidateId])
+}
+
+enum Role {
+  user
+  employee
+  admin
+}
+
+enum Gender {
+  male
+  female
+}
