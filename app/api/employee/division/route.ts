@@ -38,7 +38,7 @@ export async function POST(request:NextRequest){
         })
 
         return NextResponse.json({
-            message: "Retrieve Employee Division Success",
+            message: "Create Employee Division Success",
             data: employeeDivisionData
         },{status:200})
     }catch(error){

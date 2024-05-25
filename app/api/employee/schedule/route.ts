@@ -5,9 +5,9 @@ import { z } from "zod";
 
 export async function GET(request:NextRequest) {
     try{
-        const data = await prisma.employee.findMany()
+        const data = await prisma.employeeSchedule.findMany()
         return NextResponse.json({
-            message: "Retrieve Employee Success",
+            message: "Retrieve Employee Schedule Success",
             data
         },{status:200})
     }catch(error){
@@ -18,31 +18,28 @@ export async function GET(request:NextRequest) {
 }
 
 
-const employeeSchema = z.object({
-    userId: z.string(),
-    divisionId: z.number()
+const employeeScheduleSchema = z.object({
+    divisionId: z.number(),
+    name: z.string(),
+    description: z.string(),
+    startAt: z.date(),
+    endAt: z.date()
 })
 export async function POST(request:NextRequest){
     try{
         const body = await parseJson(request)
-        const {userId, divisionId}= employeeSchema.parse(body)
-
-        const isAvailable = await prisma.employee.findUnique({
-            where: {userId}
+        const requestData = employeeScheduleSchema.parse({
+            ...body,
+            startAt: new Date(body.startAt),
+            endAt: new Date(body.endAt)
         })
-        if(isAvailable) return NextResponse.json({
-            message: "Employee Duplicate Entry"
-        }, {status: 422})
         
-        const employeeData = await prisma.employee.create({
-            data: {
-                divisionId,
-                userId
-            }
+        const employeeData = await prisma.employeeSchedule.create({
+            data: requestData
         })
 
         return NextResponse.json({
-            message: "Create Employee Success",
+            message: "Create Employee Schedule Success",
             data: employeeData
         },{status:200})
     }catch(error){
