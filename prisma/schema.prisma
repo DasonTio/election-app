@@ -44,25 +44,25 @@ model Employee {
 }
 
 model EmployeeSchedule {
-  id                 Int                 @id @default(autoincrement())
-  employeeId         Int
-  divisionId         Int
-  date               DateTime
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  employeeDivision   EmployeeDivision    @relation(fields: [divisionId], references: [id])
-  employee           Employee            @relation(fields: [employeeId], references: [id])
-  employeeAttendance EmployeeAttendance?
+  id               Int              @id @default(autoincrement())
+  employeeId       Int
+  divisionId       Int
+  date             DateTime
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  employeeDivision EmployeeDivision @relation(fields: [divisionId], references: [id])
+  employee         Employee         @relation(fields: [employeeId], references: [id])
 
   @@unique([employeeId, date])
 }
 
 model EmployeeAttendance {
-  employeeId Int @unique
-  scheduleId Int @unique
+  employeeId Int      @unique
+  inTime     DateTime @default(now())
+  outTime    DateTime @updatedAt
+  date       DateTime @default(now())
 
-  employee         Employee         @relation(fields: [employeeId], references: [id])
-  employeeSchedule EmployeeSchedule @relation(fields: [scheduleId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id])
 }
 
 model EmployeeDivision {
