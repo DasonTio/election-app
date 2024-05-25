@@ -5,54 +5,31 @@ import {z} from 'zod'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import { register } from "module";
+import { cookies } from "next/headers";
 
-// Sign In
-const loginSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(6)
-})
+// Get All Users
 export async function GET(request: Request) {
     try{
-        const body = await request.json();
-        const {email, password} = loginSchema.parse(body)
-
-        const user = await prisma.user.findUnique({
-            where: {email}
-        })
+        const user = await prisma.user.findMany()
         
-        if(!user){
+        if(!user || user.length == 0){
             return NextResponse.json({
-                message: "User Not Found"
-            }, {status: 401})
-        }
-        
-        const isPasswordValid = await bcrypt.compare(password, user.password)
-        if(!isPasswordValid) {
-            return NextResponse.json({
-                message: "Unauthorized",
-            }, {status: 401})
+                message: "User Data is Empty"
+            }, {status: 200})
         }
 
-        const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET as string, {expiresIn: '24h'})
         return NextResponse.json({
-            message:"Login Successful",
-            token
+            message:"User Data Found",
+            user
         }, {status: 200})
     }catch(error){
-        if(error instanceof z.ZodError){
-            return NextResponse.json({
-                message: "Invalid Input",
-                errors: error.errors, 
-            }, {status: 422})
-        }
-
         return NextResponse.json({
             message: "Internal Server Error", 
         }, {status: 500})
     }
 }
 
-// Sign Up
+// Create a User
 const registerSchema = z.object({
     id: z.string().length(16),
     email: z.string().email(),
@@ -80,15 +57,13 @@ export async function POST(request: Request){
 
         if(user) return NextResponse.redirect(new URL("/login", request.url))
         
-        const registeredUser = await prisma.user.create({
+        const newUser = await prisma.user.create({
             data:requestData 
         })
 
-        const token = jwt.sign({userId: registeredUser.id}, process.env.JWT_SECRET as string, {expiresIn: '24h'})
         return NextResponse.json({
-            message: "Register Success",
-            data: registeredUser,
-            token,
+            message: "User Successfully Created",
+            data: newUser,
         })
     }catch(error){
         return NextResponse.json({

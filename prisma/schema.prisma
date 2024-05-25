@@ -32,27 +32,37 @@ model User {
 }
 
 model Employee {
-  id               Int                @id @default(autoincrement())
-  userId           String             @unique
-  divisionId       Int
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  employeeDivision EmployeeDivision   @relation(fields: [divisionId], references: [id])
-  user             User               @relation(fields: [userId], references: [id])
-  schedules        EmployeeSchedule[]
+  id                 Int                 @id @default(autoincrement())
+  userId             String              @unique
+  divisionId         Int
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  employeeDivision   EmployeeDivision    @relation(fields: [divisionId], references: [id])
+  user               User                @relation(fields: [userId], references: [id])
+  schedules          EmployeeSchedule[]
+  employeeAttendance EmployeeAttendance?
 }
 
 model EmployeeSchedule {
-  id               Int              @id @default(autoincrement())
-  employeeId       Int
-  divisionId       Int
-  date             DateTime
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  employeeDivision EmployeeDivision @relation(fields: [divisionId], references: [id])
-  employee         Employee         @relation(fields: [employeeId], references: [id])
+  id                 Int                 @id @default(autoincrement())
+  employeeId         Int
+  divisionId         Int
+  date               DateTime
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  employeeDivision   EmployeeDivision    @relation(fields: [divisionId], references: [id])
+  employee           Employee            @relation(fields: [employeeId], references: [id])
+  employeeAttendance EmployeeAttendance?
 
   @@unique([employeeId, date])
+}
+
+model EmployeeAttendance {
+  employeeId Int @unique
+  scheduleId Int @unique
+
+  employee         Employee         @relation(fields: [employeeId], references: [id])
+  employeeSchedule EmployeeSchedule @relation(fields: [scheduleId], references: [id])
 }
 
 model EmployeeDivision {
@@ -63,50 +73,52 @@ model EmployeeDivision {
 }
 
 model Candidate {
-  id            Int            @id @default(autoincrement())
+  id            Int          @id @default(autoincrement())
   name          String
   imageUrl      String
   vision        String
   mission       String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  status        Status
   votes         Vote[]
-  votingResults VotingResult[]
+  votingResults VoteResult[]
 }
 
 model Vote {
-  id          Int         @id @default(autoincrement())
-  userId      String
-  candidateId Int
-  placeId     Int
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  candidate   Candidate   @relation(fields: [candidateId], references: [id])
-  votingPlace VotingPlace @relation(fields: [placeId], references: [id])
-  user        User        @relation(fields: [userId], references: [id])
+  id            Int        @id @default(autoincrement())
+  userId        String
+  candidateId   Int
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  candidate     Candidate  @relation(fields: [candidateId], references: [id])
+  user          User       @relation(fields: [userId], references: [id])
+  VotingPlace   VotePlace? @relation(fields: [votingPlaceId], references: [id])
+  votingPlaceId Int?
 
-  @@unique([userId, candidateId, placeId])
+  @@unique([userId, candidateId])
 }
 
-model VotingPlace {
-  id          Int      @id @default(autoincrement())
+model VotePlace {
+  id          Int    @id @default(autoincrement())
   imageUrl    String
   description String
   address     String
-  latitude    Float
-  longitude   Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  votes       Vote[]
+
+  latitude  Float
+  longitude Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  votes     Vote[]
 }
 
-model VotingResult {
-  candidateId Int
+model VoteResult {
+  candidateId Int       @unique
+  total       Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   candidate   Candidate @relation(fields: [candidateId], references: [id])
-
-  @@unique([createdAt, candidateId])
 }
 
 enum Role {
@@ -118,4 +130,9 @@ enum Role {
 enum Gender {
   male
   female
+}
+
+enum Status {
+  active
+  inactive
 }

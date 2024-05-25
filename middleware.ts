@@ -1,28 +1,22 @@
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import jwt from 'jsonwebtoken'; 
+import { NextRequest } from 'next/server'
+import { fetchUser } from './utils/fetchUser'
 
-// This function can be marked `async` if using `await` inside
-export function middleware(request: NextRequest) {
-    const {pathname} = request.nextUrl
-    if(pathname === "/" || pathname === "/login"){
-        return NextResponse.next();
-    }else{
-        const token = request.cookies.get('token')?.value
-        const jwtSecret = process.env.JWT_SECRET as string;
 
-        if(!token) return NextResponse.redirect(new URL('/login', request.url));
-        
-        try{
-            jwt.verify(token, jwtSecret);
-            return NextResponse.next()
-        }catch(error){
-            return NextResponse.redirect(new URL('/login', request.url))
-        }
+
+export async function middleware(request: NextRequest) {
+
+    const result = await fetchUser()
+    if (!result) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Invalid token. Paths starting with `/api/v1/`' 
+      }, { status: 401 })
     }
+
+    return NextResponse.next()
 }
  
-// // See "Matching Paths" below to learn more
-// export const config = {
-//   matcher: '/about/:path*',
-// }
+export const config = {
+  matcher: ['/api/vote/:path*','/api/user/:path*'],
+}
