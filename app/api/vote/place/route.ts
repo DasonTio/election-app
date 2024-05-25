@@ -32,10 +32,14 @@ const votePlaceSchema = z.object({
 })
 export async function POST(request: NextRequest) {
     try{
-        const body = await parseJson(request)
         const formData = await request.formData()
-        const requestData = votePlaceSchema.parse(body) 
+        const formDataObject = Object.fromEntries(formData.entries())
 
+        const requestData = votePlaceSchema.parse({
+            ...formDataObject,
+            latitude: parseFloat(formDataObject.latitude as string),
+            longitude: parseFloat(formDataObject.longitude as string)
+        }) 
         const file = formData.get('image') as File
         if(!file) return NextResponse.json({
             message:"Invalid Input",
@@ -45,7 +49,7 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(await file.arrayBuffer())
         const filename = file.name.replaceAll(" ","-")
 
-        const storePath = path.join(process.cwd(), "public/assets/" + filename)
+        const storePath = path.join("public/assets/" + filename)
         await writeFile(storePath, buffer)
         
         const votePlace = await prisma.votePlace.create({
@@ -66,7 +70,8 @@ export async function POST(request: NextRequest) {
         }, {status: 422})
 
         return NextResponse.json({
-            message:"Internal Server Error"
+            message:"Internal Server Error",
+            error
         }, {status: 500})
     }
 }
