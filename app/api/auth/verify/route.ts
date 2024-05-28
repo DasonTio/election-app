@@ -8,7 +8,6 @@ const tokenSchema = z.object({
 })
 export async function POST(request: NextRequest){
     try {
-        console.log("ALSKDJALSKDJALSKDJASKLDASLKDJALSKDJlKSADJ")
         const body = await parseJson(request)
         const tokenData = tokenSchema.parse(body)
 

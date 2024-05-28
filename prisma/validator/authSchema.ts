@@ -2,9 +2,13 @@ import {z} from "zod"
 
 const registerSchema = z.object({
     id: z.string().length(16),
-    email: z.string().email(),
+    email: z.string().email({
+        message:"please input your email correctly"
+    }),
     name: z.string().min(1),
-    password: z.string().min(6),
+    password: z.string().min(6,{
+        message:"please input your password correctly (min 6 chars)"
+    }),
     birthDate: z.date(),
     address: z.string().min(1),
     role: z.enum(['user', 'admin', 'employee']).optional(),
@@ -18,8 +22,12 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(6)
+    email: z.string().email({
+        message:"please input your email correctly"
+    }),
+    password: z.string().min(6,{
+        message:"please input your password correctly (min 6 chars)"
+    })
 })
 
 export {
