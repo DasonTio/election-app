@@ -1,4 +1,5 @@
 import prisma from "@/prisma/db";
+import employeeSchema from "@/prisma/validator/employeeSchema";
 import parseJson from "@/utils/parseJson";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -17,11 +18,6 @@ export async function GET(request:NextRequest) {
     }
 }
 
-
-const employeeSchema = z.object({
-    userId: z.string(),
-    divisionId: z.number()
-})
 export async function POST(request:NextRequest){
     try{
         const body = await parseJson(request)

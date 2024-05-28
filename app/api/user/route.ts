@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import { register } from "module";
 import { cookies } from "next/headers";
+import { registerSchema } from "@/prisma/validator/authSchema";
 
 // Get All Users
 export async function GET(request: Request) {
@@ -29,23 +30,6 @@ export async function GET(request: Request) {
     }
 }
 
-// Create a User
-const registerSchema = z.object({
-    id: z.string().length(16),
-    email: z.string().email(),
-    name: z.string().min(1),
-    password: z.string().min(6),
-    birthDate: z.date(),
-    address: z.string().min(1),
-    role: z.enum(['user', 'admin']).optional(),
-    gender: z.enum(['male', 'female']),
-    phoneNumber: z.string().min(12).max(15),
-    ward: z.string().min(1),
-    subDistrict: z.string().min(1),
-    city: z.string().min(1),
-    regency: z.string().min(1),
-    province: z.string().min(1),
-});
 export async function POST(request: Request){
     try{
         const body = await request.json();

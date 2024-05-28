@@ -1,12 +1,10 @@
 import prisma from "@/prisma/db"
+import employeeSchema from "@/prisma/validator/employeeSchema"
 import parseJson from "@/utils/parseJson"
 import { NextRequest, NextResponse } from "next/server"
 import { z, ZodError } from "zod"
 
 
-const employeeSchema = z.object({
-    divisionId: z.number()
-})
 export async function PUT(request:NextRequest, 
     {params}:{
     params:{id: string}

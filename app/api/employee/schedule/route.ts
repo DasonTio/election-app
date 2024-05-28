@@ -1,7 +1,7 @@
 import prisma from "@/prisma/db";
+import employeeScheduleSchema from "@/prisma/validator/employeeScheduleSchema";
 import parseJson from "@/utils/parseJson";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 
 export async function GET(request:NextRequest) {
     try{
@@ -17,14 +17,6 @@ export async function GET(request:NextRequest) {
     }
 }
 
-
-const employeeScheduleSchema = z.object({
-    divisionId: z.number().optional(),
-    name: z.string(),
-    description: z.string(),
-    startAt: z.date(),
-    endAt: z.date()
-})
 export async function POST(request:NextRequest){
     try{
         const body = await parseJson(request)

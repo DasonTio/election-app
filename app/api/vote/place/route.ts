@@ -1,12 +1,9 @@
 import prisma from "@/prisma/db";
-import { Turret_Road } from "next/font/google";
 import { NextRequest, NextResponse } from "next/server";
-import { z, ZodError } from "zod";
-import formidable from "formidable"
-import { promises } from "fs";
+import { ZodError } from "zod";
 import { writeFile } from "fs/promises";
 import path from "path";
-import parseJson from "@/utils/parseJson";
+import votePlaceSchema from "@/prisma/validator/votePlaceSchema";
 
 export async function GET(){
     try{
@@ -24,12 +21,6 @@ export async function GET(){
     }
 }
 
-const votePlaceSchema = z.object({
-    description: z.string(),
-    address: z.string(),
-    latitude: z.number(),
-    longitude: z.number(),
-})
 export async function POST(request: NextRequest) {
     try{
         const formData = await request.formData()

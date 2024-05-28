@@ -1,4 +1,5 @@
 import prisma from "@/prisma/db";
+import candidateSchema from "@/prisma/validator/candidateSchema";
 import { UploadFile } from "@/utils/uploadFile";
 import { Status } from "@prisma/client";
 import { writeFile } from "fs/promises";
@@ -23,16 +24,6 @@ export async function GET(){
     }
 }
 
-
-
-const candidateSchema = z.object({
-    candidateGroupId: z.number(),
-    chiefName: z.string(),
-    deputyName: z.string(),
-    vision: z.string(),
-    mission: z.string(),
-    status: z.enum(["active", "inactive"]),
-})
 export async function POST(request: NextRequest) {
     try{
         const formData = await request.formData()

@@ -6,11 +6,10 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import parseJson from "@/utils/parseJson";
 import { cookies } from "next/headers";
+import { loginSchema } from "@/prisma/validator/authSchema";
 
-const loginSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(6)
-})
+
+
 export async function POST(request: Request) {
     try{
         const body = await parseJson(request);

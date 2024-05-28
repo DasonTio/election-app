@@ -1,15 +1,9 @@
 import prisma from "@/prisma/db"
+import employeeScheduleSchema from "@/prisma/validator/employeeScheduleSchema"
 import parseJson from "@/utils/parseJson"
 import { NextRequest, NextResponse } from "next/server"
 import { z, ZodError } from "zod"
 
-const employeeScheduleSchema = z.object({
-    divisionId: z.number().optional(),
-    name: z.string(),
-    description: z.string(),
-    startAt: z.date(),
-    endAt: z.date()
-})
 export async function PUT(request:NextRequest, 
     {params}:{
     params:{id: string}

@@ -1,16 +1,11 @@
 import prisma from "@/prisma/db";
+import votePlaceSchema from "@/prisma/validator/votePlaceSchema";
 import { fetchUser } from "@/utils/fetchUser";
 import { writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { z, ZodError } from "zod";
 
-const votePlaceSchema = z.object({
-    description: z.string(),
-    address: z.string(),
-    latitude: z.number(),
-    longitude: z.number(),
-})
 export async function PUT(request:NextRequest, 
     {params}:{
     params:{id: string}
