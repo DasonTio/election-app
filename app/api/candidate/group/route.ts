@@ -1,4 +1,5 @@
 import prisma from "@/prisma/db";
+import { candidateGroupScheme } from "@/prisma/validator/candidateGroupSchema";
 import parseJson from "@/utils/parseJson";
 import { UploadFile } from "@/utils/uploadFile";
 import { Status } from "@prisma/client";
@@ -24,18 +25,12 @@ export async function GET(){
     }
 }
 
-
-
-const candidateGroupScheme = z.object({
-    startAt: z.date(),
-    endAt: z.date()
-})
 export async function POST(request: NextRequest) {
     try{
         const body = await parseJson(request)
         const requestData = candidateGroupScheme.parse(body) 
         
-        const candidate = await prisma.candidateGroup.create({
+        const candidateGroup = await prisma.candidateGroup.create({
             data:{
                 ...requestData,
             }
@@ -43,7 +38,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             message:"Create Candidate Group Success",
-            date: candidate
+            date: candidateGroup
         }, {status: 200})
     }catch(error){
         if(error instanceof ZodError) return NextResponse.json({

@@ -73,6 +73,7 @@ model CandidateGroup {
   id        Int         @id @default(autoincrement())
   startAt   DateTime
   endAt     DateTime
+  status    Status
   candidate Candidate[]
 }
 

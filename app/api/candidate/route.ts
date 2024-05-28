@@ -1,19 +1,20 @@
 import prisma from "@/prisma/db";
-import candidateSchema from "@/prisma/validator/candidateSchema";
-import { UploadFile } from "@/utils/uploadFile";
-import { Status } from "@prisma/client";
-import { writeFile } from "fs/promises";
+import { candidateGroupScheme } from "@/prisma/validator/candidateGroupSchema";
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
 import { z, ZodError } from "zod";
 
-export async function GET(){
+export async function GET(request: NextRequest){
     try{
-        const data = await prisma.candidate.findMany({
-            where:{status: "active"}
+        const {searchParams} = new URL(request.url)
+        const status = searchParams.get('status') == 'active' || searchParams.get('isActive') == 'true';
+        const data = await prisma.candidateGroup.findMany({
+            where:{status: status ? 'active' : 'inactive'},
+            include:{
+                candidate: true
+            }
         })
         return NextResponse.json({
-            message:"Retrieve Candidate Success",
+            message:"Retrieve Candidate Group Success",
             data
         }, {status:200})
     }catch(error){
@@ -26,25 +27,12 @@ export async function GET(){
 
 export async function POST(request: NextRequest) {
     try{
-        const formData = await request.formData()
-        const formDataObject = Object.fromEntries(formData.entries())
-
-        const requestData = candidateSchema.parse(formDataObject) 
-        const chiefImageFile = formData.get('chiefImage') as File
-        const deputyImageFile = formData.get('deputyImage') as File
-        if(!chiefImageFile || !deputyImageFile) return NextResponse.json({
-            message:"Invalid Input",
-            error: "File invalid"
-        }, {status: 422})
-
-        const chiefImagePath = await UploadFile(chiefImageFile)
-        const deputyImagePath = await UploadFile(deputyImageFile)
+        const body = request.body
+        const requestData = candidateGroupScheme.parse(body) 
         
-        const candidate = await prisma.candidate.create({
+        const candidate = await prisma.candidateGroup.create({
             data:{
                 ...requestData,
-                chiefImageUrl: chiefImagePath,
-                deputyImageUrl: deputyImagePath
             }
         })
 

@@ -1,5 +1,6 @@
 import prisma from "@/prisma/db";
 import { fetchUser } from "@/utils/fetchUser";
+import parseJson from "@/utils/parseJson";
 import { UploadFile } from "@/utils/uploadFile";
 import { writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
@@ -16,28 +17,19 @@ export async function PUT(request:NextRequest,
 }){
     try{
         const id = parseInt(params.id)
-        const formData = await request.formData()
-        const formDataObject = Object.fromEntries(formData.entries())
+        const body = await parseJson(request)
+        const requestData = candidateGroupScheme.parse(body) 
         
-        const isAvailable = await prisma.candidateGroup.findUnique({
-            where: {id}
-        })
-
-        if(!isAvailable) return NextResponse.json({
-            "message": "Candidate Group Not Identified"
-        }, {status: 422})
-
-        const requestData = candidateGroupScheme.parse(formDataObject) 
-        const candidate = await prisma.candidateGroup.update({
-            where: {id},
+        const candidateGroup = await prisma.candidateGroup.update({
             data:{
                 ...requestData,
-            }
+            },
+            where:{id}
         })
         
         return NextResponse.json({
-            message: "Update Candidate Success",
-            data: candidate
+            message: "Update Candidate Group Success",
+            data: candidateGroup
         }, {status: 200})
 
     }catch(error){
