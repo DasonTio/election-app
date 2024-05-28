@@ -1,4 +1,5 @@
 import prisma from "@/prisma/db";
+import candidateSchema from "@/prisma/validator/candidateSchema";
 import { fetchUser } from "@/utils/fetchUser";
 import { UploadFile } from "@/utils/uploadFile";
 import { writeFile } from "fs/promises";
@@ -6,14 +7,6 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { number, z, ZodError } from "zod";
 
-const candidateSchema = z.object({
-    candidateGroupId: z.number(),
-    chiefName: z.string(),
-    deputyName: z.string(),
-    vision: z.string(),
-    mission: z.string(),
-    status: z.enum(["active", "inactive"]),
-})
 export async function PUT(request:NextRequest, 
     {params}:{
     params:{id: string}
@@ -31,7 +24,10 @@ export async function PUT(request:NextRequest,
             "message": "Candidate Not Identified"
         }, {status: 422})
 
-        const requestData = candidateSchema.parse(formDataObject) 
+        const requestData = candidateSchema.parse({
+            ...formDataObject,
+            candidateGroupId: parseInt(formDataObject.candidateGroupId as string)
+        }) 
         const chiefImageFile = formData.get('chiefImage') as File
         const deputyImageFile = formData.get('deputyImage') as File
         if(!chiefImageFile || !deputyImageFile) return NextResponse.json({

@@ -1,18 +1,29 @@
 import prisma from "@/prisma/db";
 import { candidateGroupScheme } from "@/prisma/validator/candidateGroupSchema";
 import parseJson from "@/utils/parseJson";
-import { UploadFile } from "@/utils/uploadFile";
-import { Status } from "@prisma/client";
-import { writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
 import { z, ZodError } from "zod";
 
-export async function GET(){
+export async function GET(request: NextRequest){
     try{
-        const data = await prisma.candidateGroup.findMany({
-            include:{candidate: true}
+        const {searchParams} = new URL(request.url)
+        const status = searchParams.get('status') == 'active' || searchParams.get('isActive') == 'true';
+        let data;
+
+        if(status){
+            data = await prisma.candidateGroup.findMany({
+                where:{status: 'active'},
+                include:{
+                    candidate: true
+                }
+            })
+        }
+        data = await prisma.candidateGroup.findMany({
+            include:{
+                candidate: true
+            }
         })
+        
         return NextResponse.json({
             message:"Retrieve Candidate Group Success",
             data
@@ -28,9 +39,13 @@ export async function GET(){
 export async function POST(request: NextRequest) {
     try{
         const body = await parseJson(request)
-        const requestData = candidateGroupScheme.parse(body) 
-        
-        const candidateGroup = await prisma.candidateGroup.create({
+        const requestData = candidateGroupScheme.parse({
+            ...body,
+            startAt: new Date(body.startAt),
+            endAt: new Date(body.endAt),
+        }) 
+
+        const candidate = await prisma.candidateGroup.create({
             data:{
                 ...requestData,
             }
@@ -38,7 +53,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             message:"Create Candidate Group Success",
-            date: candidateGroup
+            date: candidate
         }, {status: 200})
     }catch(error){
         if(error instanceof ZodError) return NextResponse.json({
