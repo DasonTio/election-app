@@ -19,7 +19,7 @@ export async function GET(request:NextRequest) {
 
 
 const employeeScheduleSchema = z.object({
-    divisionId: z.number(),
+    divisionId: z.number().optional(),
     name: z.string(),
     description: z.string(),
     startAt: z.date(),
@@ -28,7 +28,7 @@ const employeeScheduleSchema = z.object({
 export async function POST(request:NextRequest){
     try{
         const body = await parseJson(request)
-        const requestData = employeeScheduleSchema.parse({
+        let requestData = employeeScheduleSchema.parse({
             ...body,
             startAt: new Date(body.startAt),
             endAt: new Date(body.endAt)
@@ -44,7 +44,8 @@ export async function POST(request:NextRequest){
         },{status:200})
     }catch(error){
         return NextResponse.json({
-            message: "Internal Server Error"
+            message: "Internal Server Error",
+            error: error
         }, {status: 500})
     }
 }

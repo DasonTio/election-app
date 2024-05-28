@@ -34,31 +34,30 @@ model User {
 model Employee {
   id                 Int                 @id @default(autoincrement())
   userId             String              @unique
-  divisionId         Int
+  divisionId         Int?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  employeeDivision   EmployeeDivision    @relation(fields: [divisionId], references: [id])
+  employeeDivision   EmployeeDivision?   @relation(fields: [divisionId], references: [id])
   user               User                @relation(fields: [userId], references: [id])
   employeeAttendance EmployeeAttendance?
 }
 
 model EmployeeSchedule {
-  id               Int              @id @default(autoincrement())
-  divisionId       Int
+  id               Int               @id @default(autoincrement())
+  divisionId       Int?
   name             String
   description      String
   startAt          DateTime
   endAt            DateTime
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  employeeDivision EmployeeDivision @relation(fields: [divisionId], references: [id])
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  employeeDivision EmployeeDivision? @relation(fields: [divisionId], references: [id])
 }
 
 model EmployeeAttendance {
   employeeId Int      @unique
   inTime     DateTime @default(now())
   outTime    DateTime @updatedAt
-  date       DateTime @default(now())
 
   employee Employee @relation(fields: [employeeId], references: [id])
 }
@@ -70,17 +69,28 @@ model EmployeeDivision {
   schedules EmployeeSchedule[]
 }
 
+model CandidateGroup {
+  id        Int         @id @default(autoincrement())
+  startAt   DateTime
+  endAt     DateTime
+  candidate Candidate[]
+}
+
 model Candidate {
-  id            Int          @id @default(autoincrement())
-  name          String
-  imageUrl      String
-  vision        String
-  mission       String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  status        Status
-  votes         Vote[]
-  votingResults VoteResult[]
+  id               Int            @id @default(autoincrement())
+  candidateGroupId Int
+  chiefName        String
+  deputyName       String
+  chiefImageUrl    String
+  deputyImageUrl   String
+  vision           String
+  mission          String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  status           Status
+  votes            Vote[]
+  votingResults    VoteResult[]
+  candidateGroup   CandidateGroup @relation(fields: [candidateGroupId], references: [id])
 }
 
 model Vote {

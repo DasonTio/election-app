@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { z, ZodError } from "zod"
 
 const employeeScheduleSchema = z.object({
-    divisionId: z.number(),
+    divisionId: z.number().optional(),
     name: z.string(),
     description: z.string(),
     startAt: z.date(),

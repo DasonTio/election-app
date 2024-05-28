@@ -19,54 +19,64 @@ export async function GET(request:NextRequest) {
     }
 }
 
-
-const attendanceSchema = z.object({
-    time: z.date()
-})
-export async function POST(request:NextRequest){
-    try{
-        const body = await parseJson(request)
-        const {time} = attendanceSchema.parse(body)
-
-        const authUser = await fetchUser() as User
-        const currentDate = Date.now().toLocaleString()
+export async function POST(request: NextRequest) {
+    try {
+        const authUser = await fetchUser() as User;
+        const currentDate = new Date();
+        const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+        const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
 
         const employee = await prisma.employee.findUnique({
-            where: {userId : authUser.id}
-        })
-        if(!employee) return NextResponse.json({
-            message: "Employee Invalid"
-        }, {status: 422})
+            where: { userId: authUser.id }
+        });
 
-        // Check if already check-in
+        if (!employee) {
+            return NextResponse.json({
+                message: "Employee Invalid"
+            }, { status: 422 });
+        }
+
         const isClockedIn = await prisma.employeeAttendance.findFirst({
             where: {
                 employeeId: employee.id,
-                date: currentDate
-            },
-        })
+                inTime: {
+                    gte: startOfDay,
+                    lt: endOfDay
+                }
+            }
+        });
 
-        // Clock Out Function
-        if(isClockedIn){
+        if (isClockedIn) {
             await prisma.employeeAttendance.update({
-                where: {employeeId: employee.id},
-                data: {}
-            })
+                where: { 
+                    employeeId: isClockedIn.employeeId, 
+                    inTime: isClockedIn.inTime 
+                },
+                data: {
+                    outTime: currentDate
+                }
+            });
             return NextResponse.json({
                 message: "Clock Out Success",
-            }, {status: 200})
+            }, { status: 200 });
         }
 
         // Clock In Function
         await prisma.employeeAttendance.create({
-            data: {employeeId: employee.id}
-        })
+            data: {
+                employeeId: employee.id,
+                inTime: currentDate
+            }
+        });
+
         return NextResponse.json({
             message: "Clock In Success",
-        },{status:200})
-    }catch(error){
+        }, { status: 200 });
+
+    } catch (error) {
         return NextResponse.json({
-            message: "Internal Server Error"
-        }, {status: 500})
+            message: "Internal Server Error",
+            error: error
+        }, { status: 500 });
     }
 }

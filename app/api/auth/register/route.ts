@@ -15,7 +15,7 @@ const registerSchema = z.object({
     password: z.string().min(6),
     birthDate: z.date(),
     address: z.string().min(1),
-    role: z.enum(['user', 'admin']).optional(),
+    role: z.enum(['user', 'admin', 'employee']).optional(),
     gender: z.enum(['male', 'female']),
     phoneNumber: z.string().min(12).max(15),
     ward: z.string().min(1),
@@ -43,6 +43,12 @@ export async function POST(request: Request){
             data: { ...requestData, password: hashedPassword }
         });
 
+        if(requestData.role == "employee"){
+            await prisma.employee.create({
+                data:{userId: newUser.id}
+            })
+        }
+
         const {password:_, ...tokenData} = newUser 
         const token = jwt.sign(tokenData, process.env.JWT_SECRET as string, {expiresIn: '24h'})
         cookies().set("token", token)
@@ -61,6 +67,7 @@ export async function POST(request: Request){
 
         return NextResponse.json({
             "message": "Internal server error",
+            "error": error
         }, {status:500});
     }
 }
