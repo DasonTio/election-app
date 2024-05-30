@@ -476,7 +476,7 @@ export default function AdminDashboardPage() {
                 formUpdateHandler={formUpdateGroupHandler}
               />
             ))}
-          </TableBody>{" "}
+          </TableBody>
         </Table>
       </section>
 
