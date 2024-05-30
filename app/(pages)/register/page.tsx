@@ -114,7 +114,7 @@ export default function Login() {
           <header className="text-center">
             <h1 className="text-2xl">Hello, Votee </h1>
             <p className="text-sm text-gray-400">
-              let's make your first account simple
+              let&apos;s make your first account simple
             </p>
           </header>
           <main className="w-full [&>section]:flex-col [&>section]:gap-4">

@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -111,7 +109,7 @@ export default function Login() {
               onClick={onRedirectRegister}
               className="text-sm text-gray-400 hover:text-gray-500 cursor-pointer"
             >
-              Don't have an account yet? Register now
+              Don&apos;t have an account yet? Register now
             </p>
           </footer>
         </form>
