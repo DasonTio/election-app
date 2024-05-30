@@ -1,7 +1,5 @@
 import prisma from "@/prisma/db";
-import { fetchUser } from "@/utils/fetchUser";
-import parseJson from "@/utils/parseJson";
-import { User } from "@prisma/client";
+import { AuthUser, fetchUser } from "@/utils/fetchUser";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { DateTime } from "luxon";
@@ -22,7 +20,7 @@ export async function GET(request:NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        const authUser = await fetchUser() as User;
+        const authUser = await fetchUser() as AuthUser;
 
         const startOfDay = DateTime
             .now()
