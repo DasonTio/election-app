@@ -38,6 +38,7 @@ export async function POST(request: Request){
         const {password:_, ...tokenData} = newUser 
         const token = jwt.sign(tokenData, process.env.JWT_SECRET as string, {expiresIn: '24h'})
         cookies().set("token", token)
+
         return NextResponse.json({
             message: "Register Success",
             data: newUser,

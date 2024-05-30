@@ -42,7 +42,7 @@ type DataResponse = {
   errors?: any[];
 };
 
-export default function Login() {
+export default function Register() {
   const router = useRouter();
   const [progress, setProgress] = useState(0);
   const [gender, setGender] = useState("");
@@ -97,11 +97,12 @@ export default function Login() {
       gender,
       role: "user",
     });
+
     toast(response.data.message, {
-      description: "Have a good day",
+      description: "Register Success",
     });
 
-    router.push("/");
+    router.push("/login");
   };
 
   return (
@@ -430,7 +431,7 @@ export default function Login() {
                 className={cn("px-6", {
                   hidden: progress != 2,
                 })}
-                // onClick={() => form.handleSubmit(onSubmit)()}
+                onClick={() => form.handleSubmit(onSubmit)()}
                 type="submit"
               >
                 Finish
