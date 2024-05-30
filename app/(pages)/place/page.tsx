@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "sonner";
+import ContainerComponent from "@/components/base/containerComponent";
 
 let customIcon: L.Icon;
 
@@ -87,7 +88,7 @@ const MapComponent = () => {
   };
 
   return (
-    <>
+    <ContainerComponent>
       <MapContainer
         center={[-6.3005, 106.6526]}
         zoom={13}
@@ -139,7 +140,7 @@ const MapComponent = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </>
+    </ContainerComponent>
   );
 };
 

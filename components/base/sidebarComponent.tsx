@@ -8,6 +8,7 @@ import {
 
 import {
   AddressBook,
+  CalendarBlank,
   ChartBar,
   ChartBarHorizontal,
   FilmReel,

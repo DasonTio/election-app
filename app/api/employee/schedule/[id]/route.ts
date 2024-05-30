@@ -40,7 +40,8 @@ export async function PUT(request:NextRequest,
         }
 
         return NextResponse.json({
-            message: "Internal Server Error"
+            message: "Internal Server Error",
+            error
         }, {status: 500})
     }
 }
