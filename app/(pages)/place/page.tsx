@@ -15,8 +15,6 @@ import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "sonner";
 import ContainerComponent from "@/components/base/containerComponent";
 
-let customIcon: L.Icon;
-
 enum ModalState {
   edit = "edit",
   add = "add",
@@ -24,6 +22,7 @@ enum ModalState {
 
 const MapComponent = () => {
   const [markers, setMarkers] = useState<any>([]);
+  const [customIcon, setCustomIcon] = useState<L.Icon>();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalState, setModalState] = useState<ModalState>(ModalState.add);
   const [tempMarker, setTempMarker] = useState({
@@ -48,18 +47,20 @@ const MapComponent = () => {
   };
 
   useEffect(() => {
-    customIcon = new L.Icon({
-      iconUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-      iconRetinaUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-      shadowUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    });
+    setCustomIcon(
+      new L.Icon({
+        iconUrl:
+          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+        iconRetinaUrl:
+          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+        shadowUrl:
+          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      })
+    );
 
     fetchVotePlaces();
   }, []);
