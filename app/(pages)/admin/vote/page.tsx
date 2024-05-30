@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "sonner";
+import dynamic from "next/dynamic";
 
 enum ModalState {
   edit = "edit",
@@ -252,4 +253,4 @@ const MapComponent = () => {
   );
 };
 
-export default MapComponent;
+export default dynamic(() => Promise.resolve(MapComponent), { ssr: false });
