@@ -6,7 +6,11 @@ import { z } from "zod";
 
 export async function GET(request:NextRequest) {
     try{
-        const data = await prisma.employee.findMany()
+        const data = await prisma.employee.findMany({
+            include:{
+                user:true
+            }
+        })
         return NextResponse.json({
             message: "Retrieve Employee Success",
             data

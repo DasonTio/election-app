@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/db"
 import {z} from 'zod'
 import { registerSchema } from "@/prisma/validator/authSchema";
+import parseJson from "@/utils/parseJson";
+import bcrypt from 'bcryptjs'
 
 // Get Selected User
 export async function GET(
@@ -25,7 +27,7 @@ export async function GET(
 
         return NextResponse.json({
             message:"User Data Found",
-            user
+            data: user
         }, {status: 200})
     }catch(error){
         return NextResponse.json({
@@ -36,7 +38,7 @@ export async function GET(
 
 
 
-export async function POST(
+export async function PUT(
     request: Request,  
     {params}: {params:{
         id:string
@@ -45,8 +47,12 @@ export async function POST(
     
     try{
         const {id} = params
-        const body = await request.json();
-        const requestData = registerSchema.omit({id:true}).parse(body)
+        const body = await parseJson(request);
+        const requestData = registerSchema.omit({id:true}).parse({
+            ...body,
+            birthDate: new Date(body.birthDate)
+        })
+
         const user = await prisma.user.findUnique({
             where: {id}
         })
@@ -54,9 +60,13 @@ export async function POST(
         if(!user) return NextResponse.json({
             message: "User Not Identified"
         }, {status: 422})
-        
+
+        const hashedPassword = await bcrypt.hash(requestData.password, 10);
         const updatedUser = await prisma.user.update({
-            data: requestData,
+            data: {
+                ...requestData,
+                password: hashedPassword
+            },
             where: {id}
         })
 
@@ -67,6 +77,7 @@ export async function POST(
     }catch(error){
         return NextResponse.json({
             "message": "Internal server error",
+            error
         }, {status:500});
     }
 }

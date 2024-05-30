@@ -1,6 +1,7 @@
 import prisma from "@/prisma/db";
 import votePlaceSchema from "@/prisma/validator/votePlaceSchema";
 import { fetchUser } from "@/utils/fetchUser";
+import { UploadFile } from "@/utils/uploadFile";
 import { writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
@@ -22,25 +23,19 @@ export async function PUT(request:NextRequest,
             longitude: parseFloat(formDataObject.longitude as string)
         }) 
 
-        const isAvailable = await prisma.votePlace.findUnique({
+        const votePlace = await prisma.votePlace.findUnique({
             where: {id}
         })
-        if(!isAvailable) return NextResponse.json({
+        if(!votePlace) return NextResponse.json({
             "message": "Vote Place Not Identified"
         }, {status: 422})
 
         const file = formData.get('image') as File
-        if(!file) return NextResponse.json({
-            message:"Invalid Input",
-            error: "File invalid"
-        }, {status: 422})
-
-        const buffer = Buffer.from(await file.arrayBuffer())
-        const filename = file.name.replaceAll(" ","-")
-
-        const storePath = path.join("public/assets/" + filename)
-        await writeFile(storePath, buffer)
-
+        let storePath = votePlace.imageUrl;
+        if(file) {
+            const path = await UploadFile(file)
+            storePath = path
+        }
         const votePlaceData = await prisma.votePlace.update({
             where: {id},
             data: {

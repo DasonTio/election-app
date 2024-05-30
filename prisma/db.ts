@@ -1,7 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 
 const prismaClientSingleton = () => {
-  return new PrismaClient()
+  const client = new PrismaClient()
+  client.$executeRaw`SET timezone = 'UTC+7'`;
+
+  return client;
 }
 
 declare const globalThis: {
@@ -11,5 +14,6 @@ declare const globalThis: {
 const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
 
 export default prisma
+
 
 if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma

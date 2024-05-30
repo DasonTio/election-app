@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({
             message:"User Data Found",
-            user
+            data: user
         }, {status: 200})
     }catch(error){
         return NextResponse.json({
@@ -41,8 +41,12 @@ export async function POST(request: Request){
 
         if(user) return NextResponse.redirect(new URL("/login", request.url))
         
+        const hashedPassword = await bcrypt.hash(requestData.password, 10);
         const newUser = await prisma.user.create({
-            data:requestData 
+            data:{
+                ...requestData,
+                password: hashedPassword
+            } 
         })
 
         return NextResponse.json({

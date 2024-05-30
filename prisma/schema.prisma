@@ -55,9 +55,9 @@ model EmployeeSchedule {
 }
 
 model EmployeeAttendance {
-  employeeId Int      @unique
-  inTime     DateTime @default(now())
-  outTime    DateTime @updatedAt
+  employeeId Int       @unique
+  inTime     DateTime? @default(now())
+  outTime    DateTime?
 
   employee Employee @relation(fields: [employeeId], references: [id])
 }
@@ -88,7 +88,6 @@ model Candidate {
   mission          String
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
-  status           Status
   votes            Vote[]
   votingResults    VoteResult[]
   candidateGroup   CandidateGroup @relation(fields: [candidateGroupId], references: [id])

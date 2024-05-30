@@ -9,9 +9,7 @@ import { z, ZodError } from "zod";
 
 export async function GET(){
     try{
-        const data = await prisma.candidate.findMany({
-            where:{status: "active"}
-        })
+        const data = await prisma.candidate.findMany({})
         return NextResponse.json({
             message:"Retrieve Candidate Success",
             data

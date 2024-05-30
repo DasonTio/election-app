@@ -72,5 +72,8 @@
     }
     body {
       @apply bg-background text-foreground;
+      @apply overflow-auto;
+      @apply h-screen;
     }
   }
+

@@ -4,7 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(){
     try{
         const results = await prisma.voteResult.findMany({
-            where:{candidate:{status: 'active'}},
+            where:{candidate:{
+                candidateGroup:{
+                    status:"active"
+                }
+            }},
             include:{candidate:true}
         })
         return NextResponse.json({

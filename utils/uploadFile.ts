@@ -8,5 +8,5 @@ export const UploadFile = async (file:File) => {
     const storePath = path.join("public/assets/" + filename)
     await writeFile(storePath, buffer)
     
-    return storePath
+    return storePath.slice(6, storePath.length)
 }

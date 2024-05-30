@@ -16,11 +16,11 @@ export async function PUT(request:NextRequest,
         const formData = await request.formData()
         const formDataObject = Object.fromEntries(formData.entries())
         
-        const isAvailable = await prisma.candidate.findUnique({
+        const candidate = await prisma.candidate.findUnique({
             where: {id}
         })
 
-        if(!isAvailable) return NextResponse.json({
+        if(!candidate) return NextResponse.json({
             "message": "Candidate Not Identified"
         }, {status: 422})
 
@@ -30,26 +30,23 @@ export async function PUT(request:NextRequest,
         }) 
         const chiefImageFile = formData.get('chiefImage') as File
         const deputyImageFile = formData.get('deputyImage') as File
-        if(!chiefImageFile || !deputyImageFile) return NextResponse.json({
-            message:"Invalid Input",
-            error: "File invalid"
-        }, {status: 422})
 
-        const chiefImagePath = await UploadFile(chiefImageFile)
-        const deputyImagePath = await UploadFile(deputyImageFile)
-        
-        const candidate = await prisma.candidate.update({
+        let chiefImagePath, deputyImagePath;
+        if(chiefImageFile) chiefImagePath = await UploadFile(chiefImageFile)
+        if(deputyImageFile)deputyImagePath = await UploadFile(deputyImageFile)
+
+        const updatedCandidate = await prisma.candidate.update({
             where: {id},
             data:{
                 ...requestData,
-                chiefImageUrl: chiefImagePath,
-                deputyImageUrl: deputyImagePath
+                chiefImageUrl: chiefImagePath ?? candidate.chiefImageUrl,
+                deputyImageUrl: deputyImagePath ?? candidate.deputyImageUrl
             }
         })
-        
+
         return NextResponse.json({
             message: "Update Candidate Success",
-            data: candidate
+            data: updatedCandidate
         }, {status: 200})
 
     }catch(error){
@@ -80,16 +77,25 @@ export async function DELETE(
             "message": "Candidate Not Identified"
         }, {status: 422})   
 
+        await prisma.vote.deleteMany({
+            where: { candidateId: id },
+        });
+
+        await prisma.voteResult.deleteMany({
+            where: { candidateId: id },
+        });
+
         await prisma.candidate.delete({
-            where: {id}
-        })
+            where: { id },
+        });
         
         return NextResponse.json({
             message:"Delete Candidate Success"
         }, {status:200}) 
     }catch(error){
         return NextResponse.json({
-            message: "Internal Server Error"
+            message: "Internal Server Error",
+            error
         }, {status: 500})
     }
 }

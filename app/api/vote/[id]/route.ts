@@ -14,21 +14,22 @@ export async function POST(request:NextRequest,
             "message": "Unauthorized"
         }, {status: 401}) 
 
-        const isCandidateAvailable = await prisma.candidate.findUnique({
+        const candidate = await prisma.candidate.findUnique({
             where: {id}
         })
-        if(!isCandidateAvailable) return NextResponse.json({
+        if(!candidate) return NextResponse.json({
             "message": "Candidate Not Available"
         }, {status: 422})
 
-        const isVoted = await prisma.vote.findUnique({
+        const isVoted = await prisma.vote.findFirst({
             where: {
-                userId_candidateId:{
-                    userId: authUser.id,
-                    candidateId: id,
+                userId:authUser.id,
+                candidate:{
+                    candidateGroupId: candidate.candidateGroupId,
                 }
             }
         });
+        
         if(isVoted)return NextResponse.json({
             "message": "Already Voted"
         }, {status: 200})

@@ -6,7 +6,7 @@ const candidateSchema = z.object({
     deputyName: z.string(),
     vision: z.string(),
     mission: z.string(),
-    status: z.enum(["active", "inactive"]),
+    // status: z.enum(["active", "inactive"]),
 })
 
 export default candidateSchema

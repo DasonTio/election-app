@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import { writeFile } from "fs/promises";
 import path from "path";
 import votePlaceSchema from "@/prisma/validator/votePlaceSchema";
+import { UploadFile } from "@/utils/uploadFile";
 
 export async function GET(){
     try{
@@ -37,12 +38,7 @@ export async function POST(request: NextRequest) {
             error: "File invalid"
         }, {status: 422})
 
-        const buffer = Buffer.from(await file.arrayBuffer())
-        const filename = file.name.replaceAll(" ","-")
-
-        const storePath = path.join("public/assets/" + filename)
-        await writeFile(storePath, buffer)
-        
+        const storePath = await UploadFile(file);
         const votePlace = await prisma.votePlace.create({
             data:{
                 ...requestData,
@@ -59,6 +55,8 @@ export async function POST(request: NextRequest) {
             message: "Invalid Input",
             error: error.errors
         }, {status: 422})
+
+        console.log(error)
 
         return NextResponse.json({
             message:"Internal Server Error",

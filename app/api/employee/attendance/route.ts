@@ -4,6 +4,7 @@ import parseJson from "@/utils/parseJson";
 import { User } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { DateTime } from "luxon";
 
 export async function GET(request:NextRequest) {
     try{
@@ -22,9 +23,12 @@ export async function GET(request:NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const authUser = await fetchUser() as User;
-        const currentDate = new Date();
-        const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-        const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+
+        const startOfDay = DateTime
+            .now()
+            .setZone('Asia/Bangkok')
+            .startOf('day');
+        const endOfDay = startOfDay.endOf('day');
 
         const employee = await prisma.employee.findUnique({
             where: { userId: authUser.id }
@@ -40,8 +44,8 @@ export async function POST(request: NextRequest) {
             where: {
                 employeeId: employee.id,
                 inTime: {
-                    gte: startOfDay,
-                    lt: endOfDay
+                    gte: startOfDay.toISO()!,
+                    lt: endOfDay.toISO()!
                 }
             }
         });
@@ -53,9 +57,10 @@ export async function POST(request: NextRequest) {
                     inTime: isClockedIn.inTime 
                 },
                 data: {
-                    outTime: currentDate
+                    outTime: DateTime.now().setZone('Asia/Bangkok').toISO()!
                 }
             });
+
             return NextResponse.json({
                 message: "Clock Out Success",
             }, { status: 200 });
@@ -65,7 +70,7 @@ export async function POST(request: NextRequest) {
         await prisma.employeeAttendance.create({
             data: {
                 employeeId: employee.id,
-                inTime: currentDate
+                inTime: DateTime.now().setZone('Asia/Bangkok').toISO()!
             }
         });
 

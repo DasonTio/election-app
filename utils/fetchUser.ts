@@ -1,11 +1,9 @@
-import axios from "axios";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
-import axiosInstance from "./axiosInstance";
+
 
 import * as jose from 'jose'
+import { cookies } from "next/headers";
 
-type User = {
+export type AuthUser = {
     id: string,
     email: string,
     name: string,
@@ -16,12 +14,13 @@ const jwtConfig = {
   secret: new TextEncoder().encode(process.env.JWT_SECRET),
 }
 
-export async function fetchUser() : Promise<User|null>{ 
-    let token = cookies().get('token')?.value
+export async function fetchUser() : Promise<AuthUser|null>{ 
     try {
+        const token = cookies().get('token')?.value
         const decoded = await jose.jwtVerify(token!, jwtConfig.secret)
-        return decoded.payload as User
+        return decoded.payload as AuthUser
     } catch (err) {
         return null
-    }  
+    }
 }
+
