@@ -1,10 +1,7 @@
 import prisma from "@/prisma/db";
 import candidateSchema from "@/prisma/validator/candidateSchema";
 import { UploadFile } from "@/utils/uploadFile";
-import { Status } from "@prisma/client";
-import { writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
 import { z, ZodError } from "zod";
 
 export async function GET(){
