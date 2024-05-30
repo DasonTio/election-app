@@ -2,6 +2,7 @@ import prisma from "@/prisma/db";
 import { fetchUser } from "@/utils/fetchUser";
 import parseJson from "@/utils/parseJson";
 import { UploadFile } from "@/utils/uploadFile";
+import { PrismaClient } from "@prisma/client";
 import { writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
@@ -68,33 +69,30 @@ export async function DELETE(
             "message": "Candidate Group Not Identified"
         }, {status: 422})   
 
-        await prisma.$transaction(async (prisma) => {
-            // Fetch candidates associated with the candidate group
-            const candidates = await prisma.candidate.findMany({
-                where: { candidateGroupId: id },
+        const candidates = await prisma.candidate.findMany({
+            where: { candidateGroupId: id },
+        });
+
+        for (const candidate of candidates) {
+            // Delete vote results associated with the candidate
+            await prisma.voteResult.deleteMany({
+            where: { candidateId: candidate.id },
             });
     
-            for (const candidate of candidates) {
-                // Delete vote results associated with the candidate
-                await prisma.voteResult.deleteMany({
-                where: { candidateId: candidate.id },
-                });
-        
-                // Delete votes associated with the candidate
-                await prisma.vote.deleteMany({
-                where: { candidateId: candidate.id },
-                });
-        
-                // Delete the candidate
-                await prisma.candidate.delete({
-                where: { id: candidate.id },
-                });
-            }
-        
-            // Delete the candidate group
-            await prisma.candidateGroup.delete({
-                where: { id },
+            // Delete votes associated with the candidate
+            await prisma.vote.deleteMany({
+            where: { candidateId: candidate.id },
             });
+    
+            // Delete the candidate
+            await prisma.candidate.delete({
+            where: { id: candidate.id },
+            });
+        }
+    
+        // Delete the candidate group
+        await prisma.candidateGroup.delete({
+            where: { id },
         });
           
         
