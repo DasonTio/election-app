@@ -64,8 +64,7 @@ const HeadbarComponent = () => {
       <div className="relative">
         <Popover>
           <PopoverTrigger className="rounded-full aspect-square border p-2">
-            {" "}
-            <User />{" "}
+            <User />
           </PopoverTrigger>
           <PopoverContent
             className="absolute -left-[10rem] p-0 w-[200px]"
